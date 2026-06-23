@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AppText, AppButton } from '@/components/ui';
@@ -66,7 +65,7 @@ function LoginView({ onSignIn, loading }: { onSignIn: () => void; loading: boole
     <SafeAreaView style={[styles.fill, { backgroundColor: t.bg }]}>
       <View style={styles.content}>
         <View style={[styles.logoBadge, { backgroundColor: t.surface, borderColor: t.border }]}>
-          <MaterialCommunityIcons name="door" size={48} color={t.primary} />
+          <Image source={require('../../assets/images/icon.png')} style={styles.logoImage} />
         </View>
         <AppText variant="title" style={{ marginTop: 24 }}>
           MeetBoard
@@ -100,6 +99,11 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logoImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
   },
   footer: {
     paddingHorizontal: 24,

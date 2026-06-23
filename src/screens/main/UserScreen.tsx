@@ -7,6 +7,7 @@ import { Screen, Card, AppText, AppButton, Divider } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
 import { useSessionStore } from '@/store/useSessionStore';
 import { usePreferencesStore, type ThemePref } from '@/store/usePreferencesStore';
+import { useRoomStore } from '@/store/useRoomStore';
 import type { MainTabParamList, RootStackParamList } from '@/navigation/types';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'User'>;
@@ -23,11 +24,16 @@ export default function UserScreen({ navigation }: Props) {
   const reset = useSessionStore((s) => s.reset);
   const themePref = usePreferencesStore((s) => s.themePref);
   const setThemePref = usePreferencesStore((s) => s.setThemePref);
+  const roomName = useRoomStore((s) => s.selectedRoomName) ?? 'Select room';
 
   function logOut() {
     reset();
     const root = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
     root?.reset({ index: 0, routes: [{ name: 'Login' }] });
+  }
+
+  function openRoomPicker() {
+    navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.navigate('RoomPicker');
   }
 
   return (
@@ -60,6 +66,21 @@ export default function UserScreen({ navigation }: Props) {
         <Field label="Name" value={user.name ?? '—'} />
         <View style={{ height: 12 }} />
         <Field label="Email" value={user.mail ?? '—'} />
+      </Card>
+
+      <Card padded={false}>
+        <Pressable onPress={openRoomPicker} style={styles.roomRow}>
+          <MaterialIcons name="meeting-room" size={22} color={t.textSecondary} />
+          <View style={{ flex: 1 }}>
+            <AppText variant="label" color="textTertiary">
+              Room
+            </AppText>
+            <AppText variant="body" numberOfLines={1}>
+              {roomName}
+            </AppText>
+          </View>
+          <MaterialIcons name="chevron-right" size={22} color={t.textTertiary} />
+        </Pressable>
       </Card>
 
       <Card>
@@ -113,6 +134,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+  },
+  roomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 16,
   },
   avatar: {
     width: 72,

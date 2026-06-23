@@ -12,6 +12,11 @@ export interface CalendarEvent {
   htmlLink?: string;
 }
 
+export interface Room {
+  id: string;
+  name: string;
+}
+
 export interface SessionUser {
   name: string | null;
   mail: string | null;

@@ -6,6 +6,7 @@ import MainTabNavigator from '@/navigation/MainTabNavigator';
 import LoginScreen from '@/screens/LoginScreen';
 import CurrentEventScreen from '@/screens/CurrentEventScreen';
 import EditEventScreen from '@/screens/EditEventScreen';
+import RoomPickerScreen from '@/screens/RoomPickerScreen';
 import { formatTextToDisplayByLimit } from '@/lib/eventUtils';
 import { useSessionStore } from '@/store/useSessionStore';
 import { navigationRef } from '@/navigation/navigationRef';
@@ -63,6 +64,11 @@ export default function RootNavigator() {
           options={({ route }) => ({
             title: formatTextToDisplayByLimit(route.params.obj.summary.toUpperCase(), 20),
           })}
+        />
+        <Stack.Screen
+          name="RoomPicker"
+          component={RoomPickerScreen}
+          options={{ presentation: 'modal', title: 'Select room' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Screen, Card, AppText, AppButton, Chip, Divider } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
 import { pickDateTime } from '@/components/DateTimePicker';
 import { formatTimeBetweenDates } from '@/lib/eventUtils';
 import { useEvents, useCreateEvent } from '@/api/queries';
+import { useRoomStore } from '@/store/useRoomStore';
 import type { CalendarEvent } from '@/types/calendar';
+import type { RootStackParamList } from '@/navigation/types';
 import * as Toast from '@/components/Toast';
 
 function pad(n: number): string {
@@ -33,6 +37,8 @@ const QUICK = [
 
 export default function PlannerScreen() {
   const t = useAppTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const roomName = useRoomStore((s) => s.selectedRoomName) ?? 'Select room';
   const { data: events = [] } = useEvents();
   const createEvent = useCreateEvent();
 
@@ -95,10 +101,15 @@ export default function PlannerScreen() {
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
-        <View>
+        <Pressable onPress={() => navigation.navigate('RoomPicker')} style={{ flexShrink: 1 }}>
           <AppText variant="title">Reserve room</AppText>
-          <AppText variant="caption">Conference room A · seats 8</AppText>
-        </View>
+          <View style={styles.roomRow}>
+            <AppText variant="caption" numberOfLines={1}>
+              {roomName}
+            </AppText>
+            <MaterialIcons name="expand-more" size={16} color={t.textSecondary} />
+          </View>
+        </Pressable>
         {busyNow ? (
           <Chip label="In use" bg={t.busyBg} fg={t.busy} icon="schedule" />
         ) : (
@@ -193,6 +204,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+  },
+  roomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   quickGrid: {
     flexDirection: 'row',

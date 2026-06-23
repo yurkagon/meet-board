@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   CurrentEvent: { obj: CalendarEvent };
   EditEvent: { obj: CalendarEvent };
+  RoomPicker: undefined;
 };
 
 export type MainTabParamList = {

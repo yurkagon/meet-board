@@ -9,7 +9,7 @@
     "scheme": "meetboard",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.meetboard.app",
       "infoPlist": {
         "CFBundleURLTypes": [
@@ -24,7 +24,7 @@
     "android": {
       "package": "com.meetboard.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0043B2",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -39,11 +39,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
-          }
+          "backgroundColor": "#0043B2",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 116
         }
       ],
       "expo-asset",

@@ -1,15 +1,18 @@
 import { useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { AppText } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
 import { formatTimeBetweenDates } from '@/lib/eventUtils';
 import { useEvents } from '@/api/queries';
+import { useRoomStore } from '@/store/useRoomStore';
 import type { CalendarEvent } from '@/types/calendar';
+import type { RootStackParamList } from '@/navigation/types';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -33,6 +36,8 @@ function valid(ev: CalendarEvent): boolean {
 
 export default function StatusScreen() {
   const t = useAppTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const roomName = useRoomStore((s) => s.selectedRoomName) ?? 'Select room';
   const { data: events = [], isLoading } = useEvents();
   const now = new Date();
 
@@ -67,9 +72,12 @@ export default function StatusScreen() {
   return (
     <SafeAreaView style={[styles.fill, { backgroundColor: accent }]} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <AppText variant="heading" style={{ color: onAccent }}>
-          Conference room A
-        </AppText>
+        <Pressable onPress={() => navigation.navigate('RoomPicker')} style={styles.roomBtn}>
+          <AppText variant="heading" numberOfLines={1} style={{ color: onAccent }}>
+            {roomName}
+          </AppText>
+          <MaterialIcons name="expand-more" size={22} color={onAccentSoft} />
+        </Pressable>
         <AppText variant="label" style={{ color: onAccentSoft }}>
           {hhmm(now)}
         </AppText>
@@ -135,6 +143,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  roomBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flexShrink: 1,
   },
   center: {
     flex: 1,
