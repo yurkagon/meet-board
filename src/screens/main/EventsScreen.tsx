@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import DelayInput from 'react-native-debounce-input';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -37,28 +31,47 @@ export default function EventsScreen() {
   const t = useAppTheme();
   const navigation = useNavigation<Nav>();
   const [search, setSearch] = useState('');
+  const [searchKey, setSearchKey] = useState(0);
   const { data: events = [], refetch, isRefetching, isLoading } = useEvents();
 
+  function clearSearch() {
+    setSearch('');
+    setSearchKey((k) => k + 1);
+  }
+
+  const query = search.trim().toUpperCase();
   const sorted = sortDatesToDisplay(events);
-  const filtered = sorted.filter((ev) =>
-    ev.summary.toUpperCase().includes(search.toUpperCase()),
-  );
+  const filtered = query
+    ? sorted.filter((ev) => ev.summary.toUpperCase().includes(query))
+    : sorted;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top']}>
       <View style={styles.header}>
         <AppText variant="title">Events</AppText>
+        <AppText variant="caption" color="textTertiary">
+          Today ± 3 days
+        </AppText>
       </View>
 
       <View style={[styles.search, { backgroundColor: t.surface, borderColor: t.border }]}>
         <MaterialIcons name="search" size={20} color={t.textSecondary} />
-        <TextInput
+        <DelayInput
+          key={searchKey}
+          value={search}
+          onChangeText={(v) => setSearch(String(v))}
+          delayTimeout={300}
+          minLength={1}
           placeholder="Search events"
           placeholderTextColor={t.textTertiary}
-          value={search}
-          onChangeText={setSearch}
+          returnKeyType="search"
           style={{ flex: 1, color: t.text, fontSize: 16 }}
         />
+        {search.length > 0 && (
+          <Pressable onPress={clearSearch} hitSlop={10}>
+            <MaterialIcons name="close" size={20} color={t.textSecondary} />
+          </Pressable>
+        )}
       </View>
 
       <FlatList
@@ -71,9 +84,13 @@ export default function EventsScreen() {
         ListEmptyComponent={
           !isLoading ? (
             <View style={styles.empty}>
-              <MaterialCommunityIcons name="calendar-blank-outline" size={72} color={t.textTertiary} />
-              <AppText variant="body" color="textSecondary" style={{ marginTop: 12 }}>
-                No events yet
+              <MaterialCommunityIcons
+                name={query ? 'calendar-search' : 'calendar-blank-outline'}
+                size={72}
+                color={t.textTertiary}
+              />
+              <AppText variant="body" color="textSecondary" style={{ marginTop: 12, textAlign: 'center' }}>
+                {query ? `No events match “${search.trim()}”` : 'No events in the next few days'}
               </AppText>
             </View>
           ) : null

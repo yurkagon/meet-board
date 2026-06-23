@@ -3,6 +3,10 @@ import type { CalendarEvent } from '@/types/calendar';
 
 const BASE = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
 
+const WINDOW_DAYS_BEFORE = 3;
+const WINDOW_DAYS_AFTER = 3;
+const DAY_MS = 86400000;
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -25,7 +29,15 @@ export interface EventInput {
 }
 
 export async function listEvents(token: string): Promise<CalendarEvent[]> {
-  const response = await fetch(BASE, { headers: authHeaders(token) });
+  const now = Date.now();
+  const params = new URLSearchParams({
+    timeMin: new Date(now - WINDOW_DAYS_BEFORE * DAY_MS).toISOString(),
+    timeMax: new Date(now + WINDOW_DAYS_AFTER * DAY_MS).toISOString(),
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '250',
+  });
+  const response = await fetch(`${BASE}?${params.toString()}`, { headers: authHeaders(token) });
   if (!response.ok) throw new ApiError(response.status, 'Failed to load events');
   const data = await response.json();
   const items: CalendarEvent[] = data.items;
