@@ -5,6 +5,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import dayjs from 'dayjs';
 
 import { AppText } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
@@ -14,24 +15,20 @@ import { useRoomStore } from '@/store/useRoomStore';
 import type { CalendarEvent } from '@/types/calendar';
 import type { RootStackParamList } from '@/navigation/types';
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
-
 function hhmm(d: Date): string {
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return dayjs(d).format('HH:mm');
 }
 
 function startDate(ev: CalendarEvent): Date {
-  return new Date(ev.start.dateTime as string);
+  return dayjs(ev.start.dateTime).toDate();
 }
 
 function endDate(ev: CalendarEvent): Date {
-  return new Date(ev.end.dateTime as string);
+  return dayjs(ev.end.dateTime).toDate();
 }
 
 function valid(ev: CalendarEvent): boolean {
-  return startDate(ev).toString() !== 'Invalid Date' && endDate(ev).toString() !== 'Invalid Date';
+  return !!ev.start.dateTime && !!ev.end.dateTime && dayjs(ev.start.dateTime).isValid() && dayjs(ev.end.dateTime).isValid();
 }
 
 export default function StatusScreen() {
