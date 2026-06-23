@@ -1,6 +1,9 @@
+import { useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { AppText } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
@@ -32,6 +35,15 @@ export default function StatusScreen() {
   const t = useAppTheme();
   const { data: events = [], isLoading } = useEvents();
   const now = new Date();
+
+  useFocusEffect(
+    useCallback(() => {
+      activateKeepAwakeAsync('room-board');
+      return () => {
+        deactivateKeepAwake('room-board');
+      };
+    }, []),
+  );
 
   const current = events.find((ev) => valid(ev) && startDate(ev) <= now && now <= endDate(ev)) ?? null;
   const upcoming = events
