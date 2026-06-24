@@ -5,36 +5,27 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import dayjs from 'dayjs';
 
 import { AppText } from '@/components/ui';
 import { useAppTheme } from '@/theme/useAppTheme';
-import { formatTimeBetweenDates } from '@/lib/eventUtils';
+import {
+  eventStart,
+  eventEnd,
+  isValidEvent,
+  formatTime,
+  formatTimeBetweenDates,
+} from '@/lib/eventUtils';
 import { useEvents } from '@/api/queries';
 import { useRoomStore } from '@/store/useRoomStore';
-import type { CalendarEvent } from '@/types/calendar';
+import { usePreferencesStore } from '@/store/usePreferencesStore';
 import type { RootStackParamList } from '@/navigation/types';
-
-function hhmm(d: Date): string {
-  return dayjs(d).format('HH:mm');
-}
-
-function startDate(ev: CalendarEvent): Date {
-  return dayjs(ev.start.dateTime).toDate();
-}
-
-function endDate(ev: CalendarEvent): Date {
-  return dayjs(ev.end.dateTime).toDate();
-}
-
-function valid(ev: CalendarEvent): boolean {
-  return !!ev.start.dateTime && !!ev.end.dateTime && dayjs(ev.start.dateTime).isValid() && dayjs(ev.end.dateTime).isValid();
-}
 
 export default function StatusScreen() {
   const t = useAppTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const roomName = useRoomStore((s) => s.selectedRoomName) ?? 'Select room';
+  const kioskMode = usePreferencesStore((s) => s.kioskMode);
+  const setKioskMode = usePreferencesStore((s) => s.setKioskMode);
   const { data: events = [], isLoading } = useEvents();
   const now = new Date();
 
@@ -47,10 +38,11 @@ export default function StatusScreen() {
     }, []),
   );
 
-  const current = events.find((ev) => valid(ev) && startDate(ev) <= now && now <= endDate(ev)) ?? null;
+  const current =
+    events.find((ev) => isValidEvent(ev) && eventStart(ev) <= now && now <= eventEnd(ev)) ?? null;
   const upcoming = events
-    .filter((ev) => valid(ev) && startDate(ev) > now)
-    .sort((a, b) => startDate(a).getTime() - startDate(b).getTime());
+    .filter((ev) => isValidEvent(ev) && eventStart(ev) > now)
+    .sort((a, b) => eventStart(a).getTime() - eventStart(b).getTime());
   const next = upcoming[0] ?? null;
 
   const busy = current != null;
@@ -68,64 +60,83 @@ export default function StatusScreen() {
 
   return (
     <SafeAreaView style={[styles.fill, { backgroundColor: accent }]} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.navigate('RoomPicker')} style={styles.roomBtn}>
-          <AppText variant="heading" numberOfLines={1} style={{ color: onAccent }}>
-            {roomName}
-          </AppText>
-          <MaterialIcons name="expand-more" size={22} color={onAccentSoft} />
-        </Pressable>
-        <AppText variant="label" style={{ color: onAccentSoft }}>
-          {hhmm(now)}
-        </AppText>
-      </View>
-
-      <View style={styles.center}>
-        <MaterialCommunityIcons
-          name={busy ? 'calendar-clock' : 'calendar-check'}
-          size={64}
-          color={onAccentSoft}
-        />
-        <AppText variant="display" style={{ color: onAccent, marginTop: 12, textAlign: 'center' }}>
-          {busy ? 'In use' : 'Available'}
-        </AppText>
-
-        {busy && current && (
-          <View style={styles.detail}>
-            <AppText variant="title" numberOfLines={2} style={{ color: onAccent, textAlign: 'center' }}>
-              {current.summary}
+      <Pressable style={styles.fill} onPress={() => setKioskMode(!kioskMode)}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.navigate('RoomPicker')} style={styles.roomBtn}>
+            <AppText variant="heading" numberOfLines={1} style={{ color: onAccent }}>
+              {roomName}
             </AppText>
-            <AppText variant="body" style={{ color: onAccentSoft, marginTop: 8, textAlign: 'center' }}>
-              Ends at {hhmm(endDate(current))} · in {formatTimeBetweenDates(now, endDate(current))}
-            </AppText>
-          </View>
-        )}
-
-        {!busy && (
-          <View style={styles.detail}>
-            <AppText variant="body" style={{ color: onAccentSoft, textAlign: 'center' }}>
-              {next ? `Free for ${formatTimeBetweenDates(now, startDate(next))}` : 'Free for the rest of the day'}
-            </AppText>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.footer}>
-        {next ? (
-          <>
-            <AppText variant="label" style={{ color: onAccentSoft }}>
-              Next
-            </AppText>
-            <AppText variant="body" numberOfLines={1} style={{ color: onAccent, fontWeight: '600' }}>
-              {hhmm(startDate(next))} · {next.summary}
-            </AppText>
-          </>
-        ) : (
+            <MaterialIcons name="expand-more" size={22} color={onAccentSoft} />
+          </Pressable>
           <AppText variant="label" style={{ color: onAccentSoft }}>
-            No more events today
+            {formatTime(now)}
           </AppText>
-        )}
-      </View>
+        </View>
+
+        <View style={styles.center}>
+          <MaterialCommunityIcons
+            name={busy ? 'calendar-clock' : 'calendar-check'}
+            size={64}
+            color={onAccentSoft}
+          />
+          <AppText
+            variant="display"
+            style={{ color: onAccent, marginTop: 12, textAlign: 'center' }}
+          >
+            {busy ? 'In use' : 'Available'}
+          </AppText>
+
+          {busy && current && (
+            <View style={styles.detail}>
+              <AppText
+                variant="title"
+                numberOfLines={2}
+                style={{ color: onAccent, textAlign: 'center' }}
+              >
+                {current.summary}
+              </AppText>
+              <AppText
+                variant="body"
+                style={{ color: onAccentSoft, marginTop: 8, textAlign: 'center' }}
+              >
+                Ends at {formatTime(eventEnd(current))} · in{' '}
+                {formatTimeBetweenDates(now, eventEnd(current))}
+              </AppText>
+            </View>
+          )}
+
+          {!busy && (
+            <View style={styles.detail}>
+              <AppText variant="body" style={{ color: onAccentSoft, textAlign: 'center' }}>
+                {next
+                  ? `Free for ${formatTimeBetweenDates(now, eventStart(next))}`
+                  : 'Free for the rest of the day'}
+              </AppText>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.footer}>
+          {next ? (
+            <>
+              <AppText variant="label" style={{ color: onAccentSoft }}>
+                Next
+              </AppText>
+              <AppText
+                variant="body"
+                numberOfLines={1}
+                style={{ color: onAccent, fontWeight: '600' }}
+              >
+                {formatTime(eventStart(next))} · {next.summary}
+              </AppText>
+            </>
+          ) : (
+            <AppText variant="label" style={{ color: onAccentSoft }}>
+              No more events today
+            </AppText>
+          )}
+        </View>
+      </Pressable>
     </SafeAreaView>
   );
 }

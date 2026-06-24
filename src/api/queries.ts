@@ -41,7 +41,8 @@ export function useCalendars() {
 export function useCreateCalendar() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (name: string) => createCalendar((await ensureFreshAccessToken()) as string, name),
+    mutationFn: async (name: string) =>
+      createCalendar((await ensureFreshAccessToken()) as string, name),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CALENDARS_KEY }),
   });
 }

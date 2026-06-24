@@ -22,7 +22,13 @@ type ScreenProps = {
   contentStyle?: StyleProp<ViewStyle>;
 };
 
-export function Screen({ children, scroll, padded = true, backgroundColor, contentStyle }: ScreenProps) {
+export function Screen({
+  children,
+  scroll,
+  padded = true,
+  backgroundColor,
+  contentStyle,
+}: ScreenProps) {
   const t = useAppTheme();
   const bg = backgroundColor ?? t.bg;
   const inner: StyleProp<ViewStyle> = [padded && { padding: 20, gap: 16 }, contentStyle];
@@ -30,7 +36,10 @@ export function Screen({ children, scroll, padded = true, backgroundColor, conte
   if (scroll) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: bg }} edges={['top']}>
-        <ScrollView contentContainerStyle={[{ flexGrow: 1 }, inner]} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={[{ flexGrow: 1 }, inner]}
+          keyboardShouldPersistTaps="handled"
+        >
           {children}
         </ScrollView>
       </SafeAreaView>

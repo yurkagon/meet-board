@@ -3,7 +3,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Screen, Card, AppText, AppButton, Chip, Divider } from '@/components/ui';
 import { useAppTheme, type AppTheme } from '@/theme/useAppTheme';
-import { formatDateToDisplay, formatTimeBetweenDates } from '@/lib/eventUtils';
+import {
+  formatDateToDisplay,
+  formatTimeBetweenDates,
+  eventStart,
+  eventEnd,
+  isValidEvent,
+} from '@/lib/eventUtils';
 import { useDeleteEvent } from '@/api/queries';
 import * as Toast from '@/components/Toast';
 import type { CalendarEvent } from '@/types/calendar';
@@ -12,12 +18,12 @@ import type { RootStackParamList } from '@/navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'CurrentEvent'>;
 
 function status(ev: CalendarEvent, t: AppTheme) {
-  const start = new Date(ev.start.dateTime as string);
-  const end = new Date(ev.end.dateTime as string);
-  const now = new Date();
-  if (start.toString() === 'Invalid Date' || end.toString() === 'Invalid Date') {
+  if (!isValidEvent(ev)) {
     return { label: 'No date', bg: t.surfaceAlt, fg: t.textSecondary, line: 'No information' };
   }
+  const start = eventStart(ev);
+  const end = eventEnd(ev);
+  const now = new Date();
   if (now > end) {
     return {
       label: 'Past',

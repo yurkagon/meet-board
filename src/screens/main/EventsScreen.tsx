@@ -8,7 +8,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AppText, Chip } from '@/components/ui';
 import { useAppTheme, type AppTheme } from '@/theme/useAppTheme';
-import { formatDateToDisplay, sortDatesToDisplay } from '@/lib/eventUtils';
+import {
+  formatDateToDisplay,
+  sortDatesToDisplay,
+  eventStart,
+  eventEnd,
+  isValidEvent,
+} from '@/lib/eventUtils';
 import { useEvents } from '@/api/queries';
 import type { CalendarEvent } from '@/types/calendar';
 import type { RootStackParamList } from '@/navigation/types';
@@ -16,12 +22,12 @@ import type { RootStackParamList } from '@/navigation/types';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 function statusOf(ev: CalendarEvent, t: AppTheme) {
-  const start = new Date(ev.start.dateTime as string);
-  const end = new Date(ev.end.dateTime as string);
-  const now = new Date();
-  if (start.toString() === 'Invalid Date' || end.toString() === 'Invalid Date') {
+  if (!isValidEvent(ev)) {
     return { label: 'No date', bg: t.surfaceAlt, fg: t.textSecondary };
   }
+  const start = eventStart(ev);
+  const end = eventEnd(ev);
+  const now = new Date();
   if (now > end) return { label: 'Past', bg: t.surfaceAlt, fg: t.textTertiary };
   if (now >= start && now <= end) return { label: 'Now', bg: t.busyBg, fg: t.busy };
   return { label: 'Upcoming', bg: t.availableBg, fg: t.available };
@@ -41,9 +47,7 @@ export default function EventsScreen() {
 
   const query = search.trim().toUpperCase();
   const sorted = sortDatesToDisplay(events);
-  const filtered = query
-    ? sorted.filter((ev) => ev.summary.toUpperCase().includes(query))
-    : sorted;
+  const filtered = query ? sorted.filter((ev) => ev.summary.toUpperCase().includes(query)) : sorted;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top']}>
@@ -79,7 +83,11 @@ export default function EventsScreen() {
         keyExtractor={(_item, index) => String(index)}
         contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 10 }}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor={t.primary} />
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+            tintColor={t.primary}
+          />
         }
         ListEmptyComponent={
           !isLoading ? (
@@ -89,7 +97,11 @@ export default function EventsScreen() {
                 size={72}
                 color={t.textTertiary}
               />
-              <AppText variant="body" color="textSecondary" style={{ marginTop: 12, textAlign: 'center' }}>
+              <AppText
+                variant="body"
+                color="textSecondary"
+                style={{ marginTop: 12, textAlign: 'center' }}
+              >
                 {query ? `No events match “${search.trim()}”` : 'No events in the next few days'}
               </AppText>
             </View>

@@ -59,3 +59,5 @@ export const useSessionStore = create<SessionState>()(
     },
   ),
 );
+
+export const getAccessToken = () => useSessionStore.getState().accessToken;

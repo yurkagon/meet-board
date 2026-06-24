@@ -12,7 +12,11 @@ import type { MainTabParamList, RootStackParamList } from '@/navigation/types';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'User'>;
 
-const THEME_OPTIONS: { key: ThemePref; label: string; icon: keyof typeof MaterialIcons.glyphMap }[] = [
+const THEME_OPTIONS: {
+  key: ThemePref;
+  label: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+}[] = [
   { key: 'system', label: 'System', icon: 'smartphone' },
   { key: 'light', label: 'Light', icon: 'light-mode' },
   { key: 'dark', label: 'Dark', icon: 'dark-mode' },
@@ -112,6 +116,10 @@ export default function UserScreen({ navigation }: Props) {
           })}
         </View>
       </Card>
+
+      <AppText variant="caption" color="textTertiary" style={{ textAlign: 'center' }}>
+        Tap the room board to toggle full-screen display mode
+      </AppText>
 
       <AppButton title="Log out" icon="logout" variant="danger" onPress={logOut} />
     </Screen>

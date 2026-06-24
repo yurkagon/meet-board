@@ -1,4 +1,29 @@
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import type { CalendarEvent } from '@/types/calendar';
+
+dayjs.extend(duration);
+
+export function eventStart(ev: CalendarEvent): Date {
+  return dayjs(ev.start.dateTime).toDate();
+}
+
+export function eventEnd(ev: CalendarEvent): Date {
+  return dayjs(ev.end.dateTime).toDate();
+}
+
+export function isValidEvent(ev: CalendarEvent): boolean {
+  return (
+    !!ev.start.dateTime &&
+    !!ev.end.dateTime &&
+    dayjs(ev.start.dateTime).isValid() &&
+    dayjs(ev.end.dateTime).isValid()
+  );
+}
+
+export function formatTime(d: Date): string {
+  return dayjs(d).format('HH:mm');
+}
 
 export function formatDateToDisplay(str?: string | null): string {
   try {
@@ -70,15 +95,14 @@ export function sortDatesToDisplay(arr: CalendarEvent[]): CalendarEvent[] {
 }
 
 export function formatTimeBetweenDates(d1: Date, d2: Date): string {
-  const MILLS_IN_DAY = 8.64e7;
   const ms = d2.getTime() - d1.getTime();
   if (ms < 0) return ' error ';
 
-  const time = new Date(ms);
-  const days = Math.floor(ms / MILLS_IN_DAY);
-  const hours = time.getUTCHours();
-  const minutes = time.getUTCMinutes();
-  const seconds = time.getUTCSeconds();
+  const dur = dayjs.duration(ms);
+  const days = Math.floor(dur.asDays());
+  const hours = dur.hours();
+  const minutes = dur.minutes();
+  const seconds = dur.seconds();
 
   return days || hours || minutes
     ? (days ? days + (days > 1 ? ' days ' : ' day ') : '') +

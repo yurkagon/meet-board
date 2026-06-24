@@ -2,6 +2,7 @@ import { MaterialIcons, MaterialCommunityIcons, FontAwesome } from '@expo/vector
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { useAppTheme } from '@/theme/useAppTheme';
+import { usePreferencesStore } from '@/store/usePreferencesStore';
 import StatusScreen from '@/screens/main/StatusScreen';
 import PlannerScreen from '@/screens/main/PlannerScreen';
 import EventsScreen from '@/screens/main/EventsScreen';
@@ -25,13 +26,17 @@ function renderTabIcon(routeName: keyof MainTabParamList, color: string) {
 
 export default function MainTabNavigator() {
   const t = useAppTheme();
+  const kioskMode = usePreferencesStore((s) => s.kioskMode);
   return (
     <Tab.Navigator
+      initialRouteName="Status"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: t.primary,
         tabBarInactiveTintColor: t.textTertiary,
-        tabBarStyle: { backgroundColor: t.surface, borderTopColor: t.border },
+        tabBarStyle: kioskMode
+          ? { display: 'none' }
+          : { backgroundColor: t.surface, borderTopColor: t.border },
         tabBarIcon: ({ color }) => renderTabIcon(route.name, color),
       })}
     >

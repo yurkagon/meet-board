@@ -95,13 +95,13 @@ The iOS reversed-client-id URL scheme is configured in `app.json` (`ios.infoPlis
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm start` | Start the Expo dev server |
-| `npm run ios` | Build and run the iOS dev build |
+| Command           | Description                         |
+| ----------------- | ----------------------------------- |
+| `npm start`       | Start the Expo dev server           |
+| `npm run ios`     | Build and run the iOS dev build     |
 | `npm run android` | Build and run the Android dev build |
-| `npm run web` | Run in the browser |
-| `npm run lint` | Lint with `expo lint` |
+| `npm run web`     | Run in the browser                  |
+| `npm run lint`    | Lint with `expo lint`               |
 
 ## Notes & roadmap
 
