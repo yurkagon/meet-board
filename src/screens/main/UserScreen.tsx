@@ -4,6 +4,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Screen, Card, AppText, AppButton, Divider } from '@/components/ui';
+import { googleSignOut } from '@/lib/googleSignOut';
 import { useAppTheme } from '@/theme/useAppTheme';
 import { useSessionStore } from '@/store/useSessionStore';
 import { usePreferencesStore, type ThemePref } from '@/store/usePreferencesStore';
@@ -30,7 +31,8 @@ export default function UserScreen({ navigation }: Props) {
   const setThemePref = usePreferencesStore((s) => s.setThemePref);
   const roomName = useRoomStore((s) => s.selectedRoomName) ?? 'Select room';
 
-  function logOut() {
+  async function logOut() {
+    await googleSignOut();
     reset();
     const root = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
     root?.reset({ index: 0, routes: [{ name: 'Login' }] });

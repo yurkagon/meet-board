@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -37,26 +36,15 @@ function MockLogin({ navigation }: Props) {
 }
 
 function GoogleLogin({ navigation }: Props) {
-  const [loading, setLoading] = useState(false);
-  const { promptAsync, response } = useGoogleAuth();
-
-  useEffect(() => {
-    if (!response) return;
-    if (response.type === 'success') {
+  const { signIn, isLoading } = useGoogleAuth({
+    onSuccess: () => {
       navigation.navigate('Main');
       Toast.show('Success', Toast.SHORT);
-    } else if (response.type === 'error') {
-      Toast.show('Failed! Try again', Toast.LONG);
-    }
-    setLoading(false);
-  }, [response, navigation]);
+    },
+    onError: () => Toast.show('Failed! Try again', Toast.LONG),
+  });
 
-  function onSignIn() {
-    setLoading(true);
-    promptAsync();
-  }
-
-  return <LoginView onSignIn={onSignIn} loading={loading} />;
+  return <LoginView onSignIn={signIn} loading={isLoading} />;
 }
 
 function LoginView({ onSignIn, loading }: { onSignIn: () => void; loading: boolean }) {

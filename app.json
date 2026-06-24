@@ -10,16 +10,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/ios-icon.png",
-      "bundleIdentifier": "com.meetboard.app",
-      "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.146220515786-5h8d1s6hr4tek9jflckkpes2rbhu78m9"
-            ]
-          }
-        ]
-      }
+      "bundleIdentifier": "com.meetboard.app"
     },
     "android": {
       "package": "com.meetboard.app",
@@ -45,7 +36,15 @@
         }
       ],
       "expo-asset",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.146220515786-5h8d1s6hr4tek9jflckkpes2rbhu78m9"
+        }
+      ],
+      "expo-build-properties",
+      "./plugins/withModularHeaders"
     ],
     "experiments": {
       "reactCompiler": true

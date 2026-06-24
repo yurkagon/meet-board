@@ -1,57 +1,45 @@
-import { useEffect } from 'react';
-import { Platform } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
+import { useState } from 'react';
 
-import { useSessionStore } from '@/store/useSessionStore';
 import { GOOGLE_CONFIG, OAUTH_SCOPES, hasGoogleConfig } from '@/constants/googleConfig';
+import { useSessionStore } from '@/store/useSessionStore';
 
-WebBrowser.maybeCompleteAuthSession();
+GoogleSignin.configure({
+  webClientId: GOOGLE_CONFIG.webClientId,
+  iosClientId: GOOGLE_CONFIG.iosClientId,
+  scopes: OAUTH_SCOPES,
+});
 
-export function useGoogleAuth() {
+type AuthCallbacks = { onSuccess?: () => void; onError?: () => void };
+
+export function useGoogleAuth(callbacks?: AuthCallbacks) {
   const setSession = useSessionStore((s) => s.setSession);
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: GOOGLE_CONFIG.iosClientId,
-    androidClientId: GOOGLE_CONFIG.androidClientId,
-    webClientId: GOOGLE_CONFIG.webClientId,
-    clientSecret: Platform.OS === 'web' ? GOOGLE_CONFIG.webClientSecret : undefined,
-    scopes: OAUTH_SCOPES,
-    extraParams: { access_type: 'offline', prompt: 'consent' },
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    async function handleSuccess() {
-      if (response?.type !== 'success') return;
-      const tokens = response.authentication;
-      const accessToken = tokens?.accessToken;
-      if (!accessToken) return;
-
-      let profile: { givenName?: string; email?: string; photoUrl?: string } = {};
-      try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const data = await res.json();
-        profile = { givenName: data.given_name, email: data.email, photoUrl: data.picture };
-      } catch {}
-
-      const expiresAt =
-        tokens?.issuedAt && tokens?.expiresIn ? (tokens.issuedAt + tokens.expiresIn) * 1000 : null;
-
+  async function signIn() {
+    setIsLoading(true);
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result = await GoogleSignin.signIn();
+      if (!isSuccessResponse(result)) return;
+      const { accessToken } = await GoogleSignin.getTokens();
       setSession({
         accessToken,
-        refreshToken: tokens?.refreshToken ?? null,
-        accessTokenExpiresAt: expiresAt,
-        user: profile,
+        refreshToken: null,
+        accessTokenExpiresAt: null,
+        user: {
+          givenName: result.data.user.givenName ?? undefined,
+          email: result.data.user.email,
+          photoUrl: result.data.user.photo ?? undefined,
+        },
       });
+      callbacks?.onSuccess?.();
+    } catch {
+      callbacks?.onError?.();
+    } finally {
+      setIsLoading(false);
     }
-    handleSuccess();
-  }, [response, setSession]);
+  }
 
-  return {
-    available: hasGoogleConfig,
-    request,
-    response,
-    promptAsync,
-  };
+  return { available: hasGoogleConfig, signIn, isLoading };
 }
