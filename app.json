@@ -9,7 +9,7 @@
     "scheme": "meetboard",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/icon.png",
+      "icon": "./assets/images/ios-icon.png",
       "bundleIdentifier": "com.meetboard.app",
       "infoPlist": {
         "CFBundleURLTypes": [
