@@ -55,7 +55,6 @@
     "expo-font": "~56.0.7",
     "expo-keep-awake": "~56.0.3",
     "expo-linking": "~56.0.14",
-    "expo-screen-orientation": "~56.0.5",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "expo-system-ui": "~56.0.5",
