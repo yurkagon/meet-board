@@ -47,7 +47,7 @@ export function ToastHost() {
 
   if (message == null) return null;
   return (
-    <View pointerEvents="none" style={styles.wrap}>
+    <View style={[styles.wrap, { pointerEvents: 'none' }]}>
       <Animated.View style={[styles.toast, { opacity }]}>
         <Text style={styles.text}>{message}</Text>
       </Animated.View>

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
+import { AppState, Platform, View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -31,8 +31,13 @@ export default function StatusScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if (Platform.OS === 'web') return;
       activateKeepAwakeAsync('room-board');
+      const sub = AppState.addEventListener('change', (state) => {
+        if (state === 'active') activateKeepAwakeAsync('room-board').catch(() => {});
+      });
       return () => {
+        sub.remove();
         deactivateKeepAwake('room-board');
       };
     }, []),

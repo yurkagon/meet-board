@@ -34,7 +34,8 @@ export function useGoogleAuth(callbacks?: AuthCallbacks) {
         },
       });
       callbacks?.onSuccess?.();
-    } catch {
+    } catch (e) {
+      console.error('[GoogleSignIn] error:', JSON.stringify(e));
       callbacks?.onError?.();
     } finally {
       setIsLoading(false);
