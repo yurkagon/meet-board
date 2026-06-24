@@ -66,7 +66,12 @@ export default function PlannerScreen() {
 
   async function pickStart() {
     setQuick('');
-    setStartTime(await pickDateTime(startTime));
+    const newStart = await pickDateTime(startTime);
+    setStartTime(newStart);
+    if (newStart >= endTime) {
+      const duration = endTime.getTime() - startTime.getTime();
+      setEndTime(new Date(newStart.getTime() + duration));
+    }
   }
   async function pickEnd() {
     setQuick('');

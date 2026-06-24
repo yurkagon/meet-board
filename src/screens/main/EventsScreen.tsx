@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -38,7 +38,17 @@ export default function EventsScreen() {
   const navigation = useNavigation<Nav>();
   const [search, setSearch] = useState('');
   const [searchKey, setSearchKey] = useState(0);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { data: events = [], refetch, isRefetching, isLoading } = useEvents();
+
+  useEffect(() => {
+    if (!isRefetching) setIsManualRefreshing(false);
+  }, [isRefetching]);
+
+  function handleRefresh() {
+    setIsManualRefreshing(true);
+    refetch();
+  }
 
   function clearSearch() {
     setSearch('');
@@ -84,8 +94,8 @@ export default function EventsScreen() {
         contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 10 }}
         refreshControl={
           <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => refetch()}
+            refreshing={isManualRefreshing}
+            onRefresh={handleRefresh}
             tintColor={t.primary}
           />
         }
