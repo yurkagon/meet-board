@@ -56,8 +56,8 @@ Each conference room is a separate Google Calendar on one account. Pick a room f
 ## Getting started
 
 ```bash
-npm install
-npm start
+pnpm install
+pnpm dev
 ```
 
 Press `w` for web, `i` for iOS simulator, or `a` for Android emulator. Without Google credentials the app launches in **mock-login mode** — full UI, no Google calls.
@@ -91,7 +91,7 @@ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_SECRET=   # web token refresh only, dev-only
 5. Restart with a cleared cache:
 
 ```bash
-npx expo start -c
+pnpx expo start -c
 ```
 
 When at least one client ID is present, the login button uses real Google OAuth.
@@ -103,8 +103,8 @@ When at least one client ID is present, the login button uses real Google OAuth.
 Google Sign-In on native requires a **development build** — Expo Go cannot host the native SDK:
 
 ```bash
-npx expo prebuild --clean
-npx expo run:ios       # or: npx expo run:android
+pnpx expo prebuild --clean
+pnpx expo run:ios       # or: pnpx expo run:android
 ```
 
 > After `--clean` on Android, recreate `android/local.properties` with `sdk.dir=/path/to/Android/sdk` if Gradle can't find the SDK.
@@ -113,14 +113,14 @@ npx expo run:ios       # or: npx expo run:android
 
 ## Scripts
 
-| Command             | Description                     |
-| ------------------- | ------------------------------- |
-| `npm start`         | Expo dev server (all platforms) |
-| `npm run web`       | Open in browser                 |
-| `npm run typecheck` | TypeScript — `tsc --noEmit`     |
-| `npm test`          | Jest unit tests                 |
-| `npm run lint`      | ESLint                          |
-| `npm run format`    | Prettier write                  |
+| Command          | Description                     |
+| ---------------- | ------------------------------- |
+| `pnpm dev`       | Expo dev server (all platforms) |
+| `pnpm web`       | Open in browser                 |
+| `pnpm typecheck` | TypeScript — `tsc --noEmit`     |
+| `pnpm test`      | Jest unit tests                 |
+| `pnpm lint`      | ESLint                          |
+| `pnpm format`    | Prettier write                  |
 
 ---
 

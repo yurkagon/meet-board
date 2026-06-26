@@ -112,19 +112,19 @@ If none are set, `LoginScreen` falls back to `MockLogin` (no Google call at all 
 ## Commands
 
 ```bash
-npm start              # Expo dev server (all platforms)
-npm run web            # Expo dev server, open in browser
-npm run typecheck      # tsc --noEmit
-npm test               # Jest (jest-expo preset)
-npm run lint           # ESLint
-npm run format         # Prettier --write
-npm run format:check   # Prettier --check (used in CI)
+pnpm dev               # Expo dev server (all platforms)
+pnpm web               # Expo dev server, open in browser
+pnpm typecheck         # tsc --noEmit
+pnpm test              # Jest (jest-expo preset)
+pnpm lint              # ESLint
+pnpm format            # Prettier --write
+pnpm format:check      # Prettier --check (used in CI)
 ```
 
 **Node version gotcha (this machine):** Homebrew node at `/opt/homebrew/bin/node` is broken (missing `libicui18n.73`). Always use nvm:
 
 ```bash
-PATH="$HOME/.nvm/versions/node/v22.4.0/bin:$PATH" npx tsc --noEmit
+PATH="$HOME/.nvm/versions/node/v22.4.0/bin:$PATH" pnpx tsc --noEmit
 ```
 
 The user's own terminal uses nvm and is fine. Husky git hooks run in the user's shell, so they work.

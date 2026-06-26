@@ -74,7 +74,7 @@ export default function EventsScreen() {
           key={searchKey}
           value={search}
           onChangeText={(v) => setSearch(String(v))}
-          delayTimeout={300}
+          delay={300}
           minLength={1}
           placeholder="Search events"
           placeholderTextColor={t.textTertiary}
